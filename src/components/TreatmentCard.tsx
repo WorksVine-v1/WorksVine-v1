@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Trash2, Save, Loader2 } from "lucide-react";
 import DocumentManager from "./DocumentManager";
+import { formatDate } from "../lib/docUtils";
 import type { Treatment, Document } from "../types";
 
 interface Props {
@@ -9,19 +10,13 @@ interface Props {
   onDelete: (id: string) => Promise<void>;
 }
 
-export default function TreatmentCard({
-  treatment,
-  onUpdate,
-  onDelete,
-}: Props) {
+export default function TreatmentCard({ treatment, onUpdate, onDelete }: Props) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [date, setDate] = useState(treatment.date ?? "");
   const [notes, setNotes] = useState(treatment.notes ?? "");
-  const [documents, setDocuments] = useState<Document[]>(
-    treatment.documents ?? [],
-  );
+  const [documents, setDocuments] = useState<Document[]>(treatment.documents ?? []);
 
   const handleSave = async () => {
     setSaving(true);
@@ -36,61 +31,91 @@ export default function TreatmentCard({
   };
 
   return (
-    <div className="glass rounded-2xl overflow-hidden">
-      {/* Header carte */}
+    <div
+      className="rounded-2xl overflow-hidden transition-all duration-200"
+      style={{
+        // background: open ? "rgba(26,58,31,0.15)" : "rgba(255,255,255,0.04)",
+        border: open ? "1px solid rgba(45,92,53,0.35)" : "1px solid rgba(255,255,255,0.07)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+      }}
+    >
+      {/* ── Header ── */}
       <div
-        className="flex items-center justify-between p-4 cursor-pointer"
+        className="flex items-center justify-between p-4 cursor-pointer select-none"
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span className="text-white font-medium text-sm">
+          <div
+            className="w-2 h-2 rounded-full shrink-0 transition-all duration-200"
+            style={{
+              background: open ? "rgba(150,220,160,0.9)" : "rgba(45,92,53,0.6)",
+              boxShadow: open ? "0 0 6px rgba(150,220,160,0.4)" : "none",
+            }}
+          />
+          <span className="text-sm font-medium"
+            style={{ color: open ? "rgba(150,220,160,0.95)" : "rgba(255,255,255,0.8)" }}>
             {treatment.type}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {treatment.date && (
-            <span className="text-white/30 text-xs">{treatment.date}</span>
+          {/* Affichage de la date en JJ/MM/AAAA */}
+          {treatment.date && !open && (
+            <span className="text-xs px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(26,58,31,0.2)",
+                border: "1px solid rgba(45,92,53,0.3)",
+                color: "rgba(150,220,160,0.6)",
+              }}>
+              {formatDate(treatment.date)}
+            </span>
           )}
-          {open ? (
-            <ChevronUp className="w-4 h-4 text-white/40" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-white/40" />
-          )}
+          {open
+            ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(150,220,160,0.4)" }} />
+            : <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.2)" }} />
+          }
         </div>
       </div>
 
-      {/* Contenu déroulant */}
+      {/* ── Contenu déroulant ── */}
       {open && (
-        <div className="px-4 pb-4 border-t border-white/10 pt-4">
-          {/* Date */}
+        <div className="px-4 pb-4 animate-fade-in">
+          <div className="mb-4" style={{
+            height: "1px",
+            background: "linear-gradient(90deg, transparent, rgba(45,92,53,0.4), transparent)",
+          }} />
+
+          {/* Date — champ input en YYYY-MM-DD, affiché en JJ/MM/AAAA dans le header */}
           <div className="mb-3">
-            <label className="text-white/40 text-xs mb-1 block">Date</label>
+            <label className="text-xs font-medium block mb-1.5 tracking-wide"
+              style={{ color: "rgba(150,220,160,0.45)" }}>
+              Date
+            </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-xl
-                         px-3 py-2 text-white text-sm focus:outline-none
-                         focus:border-emerald-400/50"
+              className="w-full rounded-xl px-3 py-2 text-sm input-dark"
+              style={{ borderColor: "rgba(45,92,53,0.3)" }}
             />
           </div>
 
           {/* Notes */}
           <div className="mb-3">
-            <label className="text-white/40 text-xs mb-1 block">Notes</label>
+            <label className="text-xs font-medium block mb-1.5 tracking-wide"
+              style={{ color: "rgba(150,220,160,0.45)" }}>
+              Notes
+            </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
-              placeholder="Ajouter des notes..."
-              className="w-full bg-white/10 border border-white/20 rounded-xl
-                         px-3 py-2 text-white text-sm placeholder-white/20
-                         focus:outline-none focus:border-emerald-400/50 resize-none"
+              placeholder="Observations, doses utilisées…"
+              className="w-full rounded-xl px-3 py-2 text-sm resize-none input-dark"
+              style={{ borderColor: "rgba(45,92,53,0.25)" }}
             />
           </div>
 
-          {/* Documents */}
           <DocumentManager documents={documents} onChange={setDocuments} />
 
           {/* Actions */}
@@ -98,32 +123,24 @@ export default function TreatmentCard({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2
-                         bg-emerald-500/30 hover:bg-emerald-500/50
-                         border border-emerald-400/30 rounded-xl py-2.5
-                         text-emerald-300 text-sm font-medium transition-colors
-                         disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5
+                         text-sm font-medium transition-all duration-200 disabled:opacity-40"
+              style={{ background: "rgba(26,58,31,0.3)", border: "1px solid rgba(45,92,53,0.4)", color: "rgba(150,220,160,0.9)" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(26,58,31,0.5)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(26,58,31,0.3)"; }}
             >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              {saving ? "Sauvegarde..." : "Sauvegarder"}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? "Sauvegarde…" : "Sauvegarder"}
             </button>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="w-11 flex items-center justify-center
-                         bg-red-500/10 hover:bg-red-500/30
-                         border border-red-400/20 rounded-xl
-                         text-red-400 transition-colors disabled:opacity-50"
+              className="w-11 flex items-center justify-center rounded-xl transition-all duration-200 disabled:opacity-40"
+              style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "rgba(220,80,80,0.6)" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(220,50,50,0.15)"; e.currentTarget.style.color = "rgba(220,80,80,0.9)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(220,50,50,0.06)"; e.currentTarget.style.color = "rgba(220,80,80,0.6)"; }}
             >
-              {deleting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4" />
-              )}
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
             </button>
           </div>
         </div>

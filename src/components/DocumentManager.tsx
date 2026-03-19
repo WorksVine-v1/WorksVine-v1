@@ -1,6 +1,7 @@
 import { useRef } from "react";
-import { Paperclip, X, FileText, Image, Loader2, Printer } from "lucide-react";
+import { Paperclip, X, FileText, Image, Loader2, Printer, ExternalLink } from "lucide-react";
 import { useUpload } from "../hooks/useUpload";
+import { openDocument, printDocument } from "../lib/docUtils";
 import type { Document } from "../types";
 
 interface Props {
@@ -25,29 +26,24 @@ export default function DocumentManager({ documents, onChange }: Props) {
     onChange(documents.filter((d) => d.id !== id));
   };
 
-  const printDoc = (url: string) => {
-    const win = window.open(url, "_blank");
-    win?.print();
-  };
-
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-white/50 text-xs">
+        <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>
           Documents ({documents.length})
         </span>
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 text-xs transition-colors disabled:opacity-40"
+          style={{ color: "var(--gold)" }}
         >
-          {uploading ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <Paperclip className="w-3.5 h-3.5" />
-          )}
-          {uploading ? "Envoi..." : "Ajouter"}
+          {uploading
+            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            : <Paperclip className="w-3.5 h-3.5" />
+          }
+          {uploading ? "Envoi…" : "Ajouter"}
         </button>
         <input
           ref={inputRef}
@@ -64,32 +60,65 @@ export default function DocumentManager({ documents, onChange }: Props) {
           {documents.map((doc) => (
             <div
               key={doc.id}
-              className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2 border border-white/10"
+              className="flex items-center gap-2 rounded-xl px-3 py-2"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
             >
-              {doc.type === "pdf" ? (
-                <FileText className="w-4 h-4 text-red-400 shrink-0" />
-              ) : (
-                <Image className="w-4 h-4 text-blue-400 shrink-0" />
-              )}
-              <a
-                href={doc.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 text-xs text-white/70 hover:text-white truncate transition-colors"
-              >
-                {doc.name}
-              </a>
+              {/* Icône selon le type */}
+              {doc.type === "pdf"
+                ? <FileText className="w-4 h-4 shrink-0" style={{ color: "rgba(220,100,100,0.8)" }} />
+                : <Image className="w-4 h-4 shrink-0" style={{ color: "rgba(100,160,220,0.8)" }} />
+              }
+
+              {/* Nom du fichier cliquable */}
               <button
                 type="button"
-                onClick={() => printDoc(doc.url)}
-                className="text-white/30 hover:text-white/60 transition-colors"
+                onClick={() => openDocument(doc.url, doc.type)}
+                className="flex-1 text-xs text-left truncate transition-colors"
+                style={{ color: "rgba(255,255,255,0.6)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "white")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
+              >
+                {doc.name}
+              </button>
+
+              {/* Ouvrir dans nouvel onglet */}
+              <button
+                type="button"
+                onClick={() => openDocument(doc.url, doc.type)}
+                className="transition-colors"
+                style={{ color: "rgba(255,255,255,0.2)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "rgba(201,168,76,0.7)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}
+                title="Ouvrir"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Imprimer */}
+              <button
+                type="button"
+                onClick={() => printDocument(doc.url, doc.type)}
+                className="transition-colors"
+                style={{ color: "rgba(255,255,255,0.2)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "rgba(201,168,76,0.7)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}
+                title="Imprimer"
               >
                 <Printer className="w-3.5 h-3.5" />
               </button>
+
+              {/* Supprimer */}
               <button
                 type="button"
                 onClick={() => removeDoc(doc.id)}
-                className="text-white/30 hover:text-red-400 transition-colors"
+                className="transition-colors"
+                style={{ color: "rgba(255,255,255,0.2)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "rgba(220,80,80,0.8)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}
+                title="Supprimer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
