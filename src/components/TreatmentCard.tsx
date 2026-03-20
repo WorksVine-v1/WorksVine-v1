@@ -4,6 +4,38 @@ import DocumentManager from "./DocumentManager";
 import { formatDate } from "../lib/docUtils";
 import type { Treatment, Document } from "../types";
 
+type Status = "à faire" | "en cours" | "terminé";
+
+const STATUS_CONFIG: Record<Status, { label: string; bg: string; border: string; color: string; dot: string }> = {
+  "à faire": {
+    label: "À faire",
+    bg: "rgba(235,235,165,0.06)",
+    border: "rgba(235,235,165,0.15)",
+    color: "rgba(235,235,165,0.5)",
+    dot: "rgba(235,235,165,0.3)",
+  },
+  "en cours": {
+    label: "En cours",
+    bg: "rgba(4,101,110,0.15)",
+    border: "rgba(4,101,110,0.4)",
+    color: "rgba(5,132,143,0.95)",
+    dot: "#05848f",
+  },
+  "terminé": {
+    label: "Terminé",
+    bg: "rgba(100,180,100,0.1)",
+    border: "rgba(100,180,100,0.3)",
+    color: "rgba(120,200,120,0.9)",
+    dot: "rgba(120,200,120,0.85)",
+  },
+};
+
+const NEXT_STATUS: Record<Status, Status> = {
+  "à faire": "en cours",
+  "en cours": "terminé",
+  "terminé": "à faire",
+};
+
 interface Props {
   treatment: Treatment;
   onUpdate: (id: string, updated: Partial<Treatment>) => Promise<void>;
@@ -17,10 +49,20 @@ export default function TreatmentCard({ treatment, onUpdate, onDelete }: Props) 
   const [date, setDate] = useState(treatment.date ?? "");
   const [notes, setNotes] = useState(treatment.notes ?? "");
   const [documents, setDocuments] = useState<Document[]>(treatment.documents ?? []);
+  const [status, setStatus] = useState<Status>(treatment.status ?? "à faire");
+
+  const cfg = STATUS_CONFIG[status];
+
+  const handleToggleStatus = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = NEXT_STATUS[status];
+    setStatus(next);
+    await onUpdate(treatment.id, { status: next });
+  };
 
   const handleSave = async () => {
     setSaving(true);
-    await onUpdate(treatment.id, { date, notes, documents });
+    await onUpdate(treatment.id, { date, notes, documents, status });
     setSaving(false);
   };
 
@@ -34,8 +76,9 @@ export default function TreatmentCard({ treatment, onUpdate, onDelete }: Props) 
     <div
       className="rounded-2xl overflow-hidden transition-all duration-200"
       style={{
-        // background: open ? "rgba(26,58,31,0.15)" : "rgba(255,255,255,0.04)",
-        border: open ? "1px solid rgba(45,92,53,0.35)" : "1px solid rgba(255,255,255,0.07)",
+        border: open
+          ? "1px solid rgba(235,235,165,0.2)"
+          : "1px solid rgba(235,235,165,0.08)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
       }}
@@ -45,34 +88,55 @@ export default function TreatmentCard({ treatment, onUpdate, onDelete }: Props) 
         className="flex items-center justify-between p-4 cursor-pointer select-none"
         onClick={() => setOpen(!open)}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Point coloré selon statut */}
           <div
-            className="w-2 h-2 rounded-full shrink-0 transition-all duration-200"
+            className="w-2 h-2 rounded-full shrink-0 transition-all duration-300"
             style={{
-              background: open ? "rgba(150,220,160,0.9)" : "rgba(45,92,53,0.6)",
-              boxShadow: open ? "0 0 6px rgba(150,220,160,0.4)" : "none",
+              background: cfg.dot,
+              boxShadow: status !== "à faire" ? `0 0 6px ${cfg.dot}` : "none",
             }}
           />
-          <span className="text-sm font-medium"
-            style={{ color: open ? "rgba(150,220,160,0.95)" : "rgba(255,255,255,0.8)" }}>
+          <span
+            className="text-sm font-medium truncate"
+            style={{ color: open ? "var(--cream)" : "rgba(235,235,165,0.75)" }}
+          >
             {treatment.type}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Affichage de la date en JJ/MM/AAAA */}
+
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Date si carte fermée */}
           {treatment.date && !open && (
-            <span className="text-xs px-2 py-0.5 rounded-full"
+            <span
+              className="text-xs px-2 py-0.5 rounded-full"
               style={{
-                background: "rgba(26,58,31,0.2)",
-                border: "1px solid rgba(45,92,53,0.3)",
-                color: "rgba(150,220,160,0.6)",
-              }}>
+                background: "rgba(235,235,165,0.06)",
+                border: "1px solid rgba(235,235,165,0.12)",
+                color: "rgba(235,235,165,0.4)",
+              }}
+            >
               {formatDate(treatment.date)}
             </span>
           )}
+
+          {/* Badge statut — cliquable */}
+          <button
+            onClick={handleToggleStatus}
+            className="text-xs px-2.5 py-1 rounded-full font-medium transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              background: cfg.bg,
+              border: `1px solid ${cfg.border}`,
+              color: cfg.color,
+            }}
+            title="Changer le statut"
+          >
+            {cfg.label}
+          </button>
+
           {open
-            ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(150,220,160,0.4)" }} />
-            : <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.2)" }} />
+            ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(235,235,165,0.35)" }} />
+            : <ChevronDown className="w-4 h-4" style={{ color: "rgba(235,235,165,0.2)" }} />
           }
         </div>
       </div>
@@ -82,13 +146,14 @@ export default function TreatmentCard({ treatment, onUpdate, onDelete }: Props) 
         <div className="px-4 pb-4 animate-fade-in">
           <div className="mb-4" style={{
             height: "1px",
-            background: "linear-gradient(90deg, transparent, rgba(45,92,53,0.4), transparent)",
+            background: "linear-gradient(90deg, transparent, rgba(235,235,165,0.15), transparent)",
           }} />
 
-          {/* Date — champ input en YYYY-MM-DD, affiché en JJ/MM/AAAA dans le header */}
           <div className="mb-3">
-            <label className="text-xs font-medium block mb-1.5 tracking-wide"
-              style={{ color: "rgba(150,220,160,0.45)" }}>
+            <label
+              className="text-xs font-medium block mb-1.5 tracking-wide"
+              style={{ color: "rgba(235,235,165,0.4)" }}
+            >
               Date
             </label>
             <input
@@ -96,14 +161,14 @@ export default function TreatmentCard({ treatment, onUpdate, onDelete }: Props) 
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="w-full rounded-xl px-3 py-2 text-sm input-dark"
-              style={{ borderColor: "rgba(45,92,53,0.3)" }}
             />
           </div>
 
-          {/* Notes */}
           <div className="mb-3">
-            <label className="text-xs font-medium block mb-1.5 tracking-wide"
-              style={{ color: "rgba(150,220,160,0.45)" }}>
+            <label
+              className="text-xs font-medium block mb-1.5 tracking-wide"
+              style={{ color: "rgba(235,235,165,0.4)" }}
+            >
               Notes
             </label>
             <textarea
@@ -112,35 +177,53 @@ export default function TreatmentCard({ treatment, onUpdate, onDelete }: Props) 
               rows={3}
               placeholder="Observations, doses utilisées…"
               className="w-full rounded-xl px-3 py-2 text-sm resize-none input-dark"
-              style={{ borderColor: "rgba(45,92,53,0.25)" }}
             />
           </div>
 
           <DocumentManager documents={documents} onChange={setDocuments} />
 
-          {/* Actions */}
           <div className="flex gap-2 mt-4">
             <button
               onClick={handleSave}
               disabled={saving}
               className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5
                          text-sm font-medium transition-all duration-200 disabled:opacity-40"
-              style={{ background: "rgba(26,58,31,0.3)", border: "1px solid rgba(45,92,53,0.4)", color: "rgba(150,220,160,0.9)" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(26,58,31,0.5)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "rgba(26,58,31,0.3)"; }}
+              style={{
+                background: "rgba(235,235,165,0.08)",
+                border: "1px solid rgba(235,235,165,0.18)",
+                color: "var(--cream)",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(235,235,165,0.14)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(235,235,165,0.08)"; }}
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Save className="w-4 h-4" />
+              }
               {saving ? "Sauvegarde…" : "Sauvegarder"}
             </button>
             <button
               onClick={handleDelete}
               disabled={deleting}
               className="w-11 flex items-center justify-center rounded-xl transition-all duration-200 disabled:opacity-40"
-              style={{ background: "rgba(220,50,50,0.06)", border: "1px solid rgba(220,50,50,0.15)", color: "rgba(220,80,80,0.6)" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(220,50,50,0.15)"; e.currentTarget.style.color = "rgba(220,80,80,0.9)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "rgba(220,50,50,0.06)"; e.currentTarget.style.color = "rgba(220,80,80,0.6)"; }}
+              style={{
+                background: "rgba(220,50,50,0.06)",
+                border: "1px solid rgba(220,50,50,0.15)",
+                color: "rgba(220,80,80,0.6)",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "rgba(220,50,50,0.15)";
+                e.currentTarget.style.color = "rgba(220,80,80,0.9)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "rgba(220,50,50,0.06)";
+                e.currentTarget.style.color = "rgba(220,80,80,0.6)";
+              }}
             >
-              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              {deleting
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Trash2 className="w-4 h-4" />
+              }
             </button>
           </div>
         </div>

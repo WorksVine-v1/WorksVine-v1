@@ -27,6 +27,7 @@ export interface Work {
     notes: string;
     documents: Document[];
     createdAt: string;
+    status?: "à faire" | "en cours" | "terminé"; 
 }
 
 export interface Treatment {
@@ -36,6 +37,7 @@ export interface Treatment {
     notes: string;
     documents: Document[];
     createdAt: string;
+    status?: "à faire" | "en cours" | "terminé";
 }
 
 export interface Year {

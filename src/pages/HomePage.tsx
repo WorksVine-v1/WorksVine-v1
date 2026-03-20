@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Grape, Trash2, Loader2, LogOut } from "lucide-react";
+import { Plus, Grape, Trash2, Loader2, LogOut, Search, X } from "lucide-react";
 import { useYears } from "../hooks/useYears";
 import { useAuth } from "../hooks/useAuth";
 
@@ -11,7 +11,16 @@ export default function HomePage() {
   const [newYear, setNewYear] = useState("");
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
+
+  // Filtrage en temps réel
+  const filtered = useMemo(() => {
+    if (!search.trim()) return years;
+    return years.filter((y) =>
+      String(y.year).includes(search.trim())
+    );
+  }, [years, search]);
 
   const handleAdd = async () => {
     const yearNum = parseInt(newYear);
@@ -20,10 +29,7 @@ export default function HomePage() {
       return;
     }
     const result = await addYear(yearNum);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
+    if (result.error) { setError(result.error); return; }
     setNewYear("");
     setShowInput(false);
     setError("");
@@ -39,49 +45,34 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen p-4 pb-10 max-w-md mx-auto">
+
       {/* ── Header ── */}
       <div className="animate-fade-in-up pt-5 pb-4">
-        {/* Logo + titre + bouton déco sur une ligne */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-xl glass-wine glow-wine flex items-center justify-center shrink-0">
-              <Grape className="w-5 h-5" style={{ color: "var(--gold)" }} />
-              <div
-                className="absolute inset-0 rounded-xl"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%)",
-                }}
-              />
+              <Grape className="w-5 h-5" style={{ color: "var(--cream)" }} />
+              <div className="absolute inset-0 rounded-xl"
+                style={{ background: "linear-gradient(135deg, rgba(4,101,110,0.15) 0%, transparent 60%)" }} />
             </div>
             <div>
-              <h1
-                className="text-lg font-bold leading-none"
-                style={{ color: "var(--gold-light)", letterSpacing: "-0.02em" }}
-              >
+              <h1 className="text-lg font-bold leading-none"
+                style={{ color: "var(--cream)", letterSpacing: "-0.02em" }}>
                 WorksVine
               </h1>
-              <p
-                className="text-xs mt-0.5"
-                style={{ color: "rgba(201,168,76,0.4)" }}
-              >
+              <p className="text-xs mt-0.5" style={{ color: "rgba(235,235,165,0.4)" }}>
                 {user?.displayName ?? user?.email ?? "Mon vignoble"}
               </p>
             </div>
           </div>
 
-          {/* Bouton déconnexion — juste l'icône */}
           <button
             onClick={logout}
             className="w-7 h-7 flex items-center justify-center rounded-lg transition-all duration-200"
-            style={{ color: "rgba(255,255,255,0.18)" }}
+            style={{ color: "rgba(235,235,165,0.18)" }}
             title="Déconnexion"
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "rgba(220,80,80,0.7)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "rgba(255,255,255,0.18)")
-            }
+            onMouseEnter={e => (e.currentTarget.style.color = "rgba(220,80,80,0.7)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "rgba(235,235,165,0.18)")}
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>
@@ -89,25 +80,52 @@ export default function HomePage() {
         <div className="divider-gold" />
       </div>
 
+      {/* ── Barre de recherche ── */}
+      {years.length > 1 && (
+        <div
+          className="flex items-center gap-2 rounded-xl px-3 py-2.5 mb-3 animate-fade-in-up delay-1"
+          style={{
+            background: "rgba(235,235,165,0.04)",
+            border: "1px solid rgba(235,235,165,0.09)",
+          }}
+        >
+          <Search className="w-4 h-4 shrink-0" style={{ color: "rgba(235,235,165,0.25)" }} />
+          <input
+            type="number"
+            placeholder="Rechercher une année…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: "var(--cream)" }}
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="transition-colors"
+              style={{ color: "rgba(235,235,165,0.25)" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "rgba(235,235,165,0.6)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "rgba(235,235,165,0.25)")}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ── Titre section + bouton ── */}
       <div className="flex items-center justify-between mb-3 animate-fade-in-up delay-1">
-        <div
-          className="ornament-line text-xs font-medium tracking-widest uppercase"
-          style={{ color: "rgba(201,168,76,0.5)" }}
-        >
-          Mes années
+        <div className="ornament-line text-xs font-medium tracking-widest uppercase"
+          style={{ color: "rgba(235,235,165,0.4)" }}>
+          {search
+            ? `${filtered.length} résultat${filtered.length > 1 ? "s" : ""}`
+            : "Mes années"
+          }
         </div>
         <button
-          onClick={() => {
-            setShowInput(!showInput);
-            setError("");
-          }}
+          onClick={() => { setShowInput(!showInput); setError(""); }}
           className="w-9 h-9 rounded-xl glass flex items-center justify-center
                      transition-all duration-200 hover:scale-105 active:scale-95"
-          style={{
-            border: "1px solid rgba(201,168,76,0.2)",
-            color: "var(--gold)",
-          }}
+          style={{ border: "1px solid rgba(4,101,110,0.35)", color: "var(--teal-light)" }}
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -115,14 +133,10 @@ export default function HomePage() {
 
       {/* ── Formulaire ajout ── */}
       {showInput && (
-        <div
-          className="glass-strong rounded-2xl p-4 mb-3 animate-fade-in"
-          style={{ border: "1px solid rgba(201,168,76,0.15)" }}
-        >
-          <p
-            className="text-xs font-medium mb-3 tracking-wide"
-            style={{ color: "rgba(201,168,76,0.6)" }}
-          >
+        <div className="glass-strong rounded-2xl p-4 mb-3 animate-fade-in"
+          style={{ border: "1px solid rgba(4,101,110,0.25)" }}>
+          <p className="text-xs font-medium mb-3 tracking-wide"
+            style={{ color: "rgba(235,235,165,0.5)" }}>
             ✦ Nouvelle année
           </p>
           <div className="flex gap-2">
@@ -130,28 +144,17 @@ export default function HomePage() {
               type="number"
               placeholder="2025"
               value={newYear}
-              onChange={(e) => {
-                setNewYear(e.target.value);
-                setError("");
-              }}
+              onChange={(e) => { setNewYear(e.target.value); setError(""); }}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
               className="flex-1 rounded-xl px-4 py-2.5 text-sm input-dark"
               autoFocus
             />
-            <button
-              onClick={handleAdd}
-              className="px-5 py-2.5 rounded-xl text-sm font-medium btn-gold"
-            >
+            <button onClick={handleAdd} className="px-5 py-2.5 rounded-xl text-sm font-medium btn-gold">
               Ajouter
             </button>
           </div>
           {error && (
-            <p
-              className="text-xs mt-2"
-              style={{ color: "rgba(232,100,100,0.8)" }}
-            >
-              {error}
-            </p>
+            <p className="text-xs mt-2" style={{ color: "rgba(232,100,100,0.8)" }}>{error}</p>
           )}
         </div>
       )}
@@ -160,37 +163,48 @@ export default function HomePage() {
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
-            <Loader2
-              className="w-6 h-6 animate-spin"
-              style={{ color: "var(--gold)" }}
-            />
-            <p className="text-xs" style={{ color: "rgba(201,168,76,0.4)" }}>
-              Chargement…
-            </p>
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--teal-light)" }} />
+            <p className="text-xs" style={{ color: "rgba(235,235,165,0.3)" }}>Chargement…</p>
           </div>
         </div>
-      ) : years.length === 0 ? (
-        <div
-          className="glass rounded-2xl p-10 text-center animate-fade-in"
-          style={{ border: "1px solid rgba(201,168,76,0.08)" }}
-        >
-          <Grape
-            className="w-12 h-12 mx-auto mb-4 animate-pulse-soft"
-            style={{ color: "rgba(201,168,76,0.2)" }}
-          />
-          <p
-            className="text-sm font-medium mb-1"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+
+      ) : filtered.length === 0 && search ? (
+        /* ── Aucun résultat de recherche ── */
+        <div className="glass rounded-2xl p-10 text-center animate-fade-in"
+          style={{ border: "1px solid rgba(235,235,165,0.07)" }}>
+          <Search className="w-10 h-10 mx-auto mb-4 animate-pulse-soft"
+            style={{ color: "rgba(235,235,165,0.15)" }} />
+          <p className="text-sm font-medium mb-1" style={{ color: "rgba(235,235,165,0.3)" }}>
+            Aucune année trouvée
+          </p>
+          <button
+            onClick={() => setSearch("")}
+            className="text-xs mt-2 transition-colors"
+            style={{ color: "rgba(4,101,110,0.7)" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--teal-light)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "rgba(4,101,110,0.7)")}
           >
+            Effacer la recherche
+          </button>
+        </div>
+
+      ) : years.length === 0 ? (
+        /* ── Liste vide ── */
+        <div className="glass rounded-2xl p-10 text-center animate-fade-in"
+          style={{ border: "1px solid rgba(235,235,165,0.07)" }}>
+          <Grape className="w-12 h-12 mx-auto mb-4 animate-pulse-soft"
+            style={{ color: "rgba(235,235,165,0.15)" }} />
+          <p className="text-sm font-medium mb-1" style={{ color: "rgba(235,235,165,0.3)" }}>
             Aucune année enregistrée
           </p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>
+          <p className="text-xs" style={{ color: "rgba(235,235,165,0.18)" }}>
             Appuie sur + pour commencer
           </p>
         </div>
+
       ) : (
         <div className="flex flex-col gap-3">
-          {years.map((y, i) => (
+          {filtered.map((y, i) => (
             <div
               key={y.id}
               onClick={() => navigate(`/year/${y.id}`)}
@@ -198,52 +212,37 @@ export default function HomePage() {
                           ${i === 0 ? "" : i === 1 ? "delay-1" : i === 2 ? "delay-2" : "delay-3"}`}
               style={{ opacity: 0 }}
             >
-              {/* Carte minimaliste */}
               <div
                 className="rounded-2xl px-5 py-4 flex items-center justify-between"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(235,235,165,0.03)",
+                  border: "1px solid rgba(235,235,165,0.08)",
                   backdropFilter: "blur(16px)",
                 }}
               >
-                {/* Année en grand + stats en petit */}
                 <div>
                   <p
                     className="text-3xl font-bold leading-none mb-1.5"
-                    style={{
-                      color: "var(--gold-light)",
-                      letterSpacing: "-0.03em",
-                    }}
+                    style={{ color: "var(--cream)", letterSpacing: "-0.03em" }}
                   >
                     {y.year}
                   </p>
-                  <p
-                    className="text-xs"
-                    style={{ color: "rgba(255,255,255,0.3)" }}
-                  >
-                    {y.works?.length ?? 0} travaux · {y.treatments?.length ?? 0}{" "}
-                    traitements
+                  <p className="text-xs" style={{ color: "rgba(235,235,165,0.3)" }}>
+                    {y.works?.length ?? 0} travaux · {y.treatments?.length ?? 0} traitements
                   </p>
                 </div>
 
-                {/* Bouton supprimer */}
                 <button
                   onClick={(e) => handleDelete(y.id, e)}
                   className="w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200"
-                  style={{ color: "rgba(255,255,255,0.12)" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "rgba(220,80,80,0.7)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "rgba(255,255,255,0.12)")
-                  }
+                  style={{ color: "rgba(235,235,165,0.12)" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "rgba(220,80,80,0.7)")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "rgba(235,235,165,0.12)")}
                 >
-                  {deleting === y.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
-                  )}
+                  {deleting === y.id
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : <Trash2 className="w-4 h-4" />
+                  }
                 </button>
               </div>
             </div>
@@ -252,9 +251,7 @@ export default function HomePage() {
       )}
 
       <div className="mt-6 text-center">
-        <p className="text-xs" style={{ color: "rgba(201,168,76,0.15)" }}>
-          ✦ WorksVine ✦
-        </p>
+        <p className="text-xs" style={{ color: "rgba(235,235,165,0.12)" }}>✦ WorksVine ✦</p>
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ export default function DocumentManager({ documents, onChange }: Props) {
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>
+        <span className="text-xs font-medium" style={{ color: "rgba(235,235,165,0.3)" }}>
           Documents ({documents.length})
         </span>
         <button
@@ -37,7 +37,7 @@ export default function DocumentManager({ documents, onChange }: Props) {
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
           className="flex items-center gap-1.5 text-xs transition-colors disabled:opacity-40"
-          style={{ color: "var(--gold)" }}
+          style={{ color: "var(--teal-light)" }}
         >
           {uploading
             ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -62,62 +62,57 @@ export default function DocumentManager({ documents, onChange }: Props) {
               key={doc.id}
               className="flex items-center gap-2 rounded-xl px-3 py-2"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(235,235,165,0.03)",
+                border: "1px solid rgba(235,235,165,0.08)",
               }}
             >
-              {/* Icône selon le type */}
               {doc.type === "pdf"
-                ? <FileText className="w-4 h-4 shrink-0" style={{ color: "rgba(220,100,100,0.8)" }} />
-                : <Image className="w-4 h-4 shrink-0" style={{ color: "rgba(100,160,220,0.8)" }} />
+                ? <FileText className="w-4 h-4 shrink-0" style={{ color: "rgba(220,100,100,0.7)" }} />
+                : <Image className="w-4 h-4 shrink-0" style={{ color: "var(--teal-light)" }} />
               }
 
-              {/* Nom du fichier cliquable */}
               <button
                 type="button"
                 onClick={() => openDocument(doc.url, doc.type)}
                 className="flex-1 text-xs text-left truncate transition-colors"
-                style={{ color: "rgba(255,255,255,0.6)" }}
-                onMouseEnter={e => (e.currentTarget.style.color = "white")}
-                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
+                style={{ color: "rgba(235,235,165,0.55)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--cream)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(235,235,165,0.55)")}
               >
                 {doc.name}
               </button>
 
-              {/* Ouvrir dans nouvel onglet */}
               <button
                 type="button"
                 onClick={() => openDocument(doc.url, doc.type)}
                 className="transition-colors"
-                style={{ color: "rgba(255,255,255,0.2)" }}
-                onMouseEnter={e => (e.currentTarget.style.color = "rgba(201,168,76,0.7)")}
-                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}
+                style={{ color: "rgba(235,235,165,0.18)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--teal-light)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(235,235,165,0.18)")}
                 title="Ouvrir"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </button>
 
-              {/* Imprimer */}
               <button
                 type="button"
                 onClick={() => printDocument(doc.url, doc.type)}
                 className="transition-colors"
-                style={{ color: "rgba(255,255,255,0.2)" }}
-                onMouseEnter={e => (e.currentTarget.style.color = "rgba(201,168,76,0.7)")}
-                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}
+                style={{ color: "rgba(235,235,165,0.18)" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--teal-light)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(235,235,165,0.18)")}
                 title="Imprimer"
               >
                 <Printer className="w-3.5 h-3.5" />
               </button>
 
-              {/* Supprimer */}
               <button
                 type="button"
                 onClick={() => removeDoc(doc.id)}
                 className="transition-colors"
-                style={{ color: "rgba(255,255,255,0.2)" }}
+                style={{ color: "rgba(235,235,165,0.18)" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "rgba(220,80,80,0.8)")}
-                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(235,235,165,0.18)")}
                 title="Supprimer"
               >
                 <X className="w-3.5 h-3.5" />

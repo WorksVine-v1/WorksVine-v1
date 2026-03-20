@@ -8,144 +8,130 @@
 
 @layer base {
   :root {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    /* Variables shadcn remappées — thème Minuit doré */
+    --background: #10102a;
+    --foreground: #EBEBA5;
+    --card: #17173a;
+    --card-foreground: #EBEBA5;
+    --popover: #17173a;
+    --popover-foreground: #EBEBA5;
+    --primary: #04656E;
+    --primary-foreground: #EBEBA5;
+    --secondary: #1a1a3e;
+    --secondary-foreground: #EBEBA5;
+    --muted: #1a1a3e;
+    --muted-foreground: rgba(235,235,165,0.5);
+    --accent: #04656E;
+    --accent-foreground: #EBEBA5;
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
+    --border: rgba(235,235,165,0.1);
+    --input: rgba(235,235,165,0.08);
+    --ring: rgba(4,101,110,0.5);
     --radius: 0.625rem;
 
     /* ============================================================
-       PALETTE VIGNOBLE — modifie ces valeurs pour changer le thème
+       THÈME MINUIT DORÉ
+       Fond : #10102a   — violet-nuit profond
+       Accent : #04656E — teal
+       Texte : #EBEBA5  — crème
        ============================================================ */
 
-    /* Bordeaux — couleur principale des travaux, icône header, onglet actif travaux */
-    --wine: #7c2b79;
-
-    /* Bordeaux clair — hover sur les éléments bordeaux */
-    --wine-light: #2a7c8b;
-
-    /* Or — titres principaux, icônes, bordures actives, boutons */
-    --gold: #c9a84c;
-
-    /* Or clair — textes dorés, labels, titres de pages */
-    --gold-light: #e8c97a;
-
-    /* Vert vignoble foncé — couleur principale des traitements */
-    --vine: #1a3a1f;
-
-    /* Vert vignoble clair — hover sur les éléments verts, bordures traitements */
-    --vine-light: #5c482d;
-
-    /* Noir profond — couleur de fond principale de l'application */
-    --deep: #0a0812;
-
-    /* Noir violacé — utilisé dans le dégradé de fond au centre */
-    --deep-mid: #130f1e;
-
-    /* Noir verdâtre — utilisé dans le dégradé de fond en bas à droite */
-    --deep-green: #091410;
+    --cream:       #EBEBA5;
+    --cream-light: #f5f5c8;
+    --cream-dim:   rgba(235,235,165,0.5);
+    --teal:        #04656E;
+    --teal-light:  #05848f;
+    --deep:        #10102a;
+    --deep-mid:    #1a1a3a;
+    --deep-teal:   #0a1a1c;
   }
 
   * { @apply border-border outline-ring/50; }
   html { scroll-behavior: smooth; }
 
   body {
-    @apply text-foreground;
-    /* Fond principal — doit correspondre à --deep */
     background-color: var(--deep);
     background-image:
-      /* Halo bordeaux en haut à gauche — change rgba(R,G,B, opacité) */
-      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(94, 39, 58, 0.35) 0%, transparent 60%),
-      /* Halo vert en bas à droite — change rgba(R,G,B, opacité) */
-      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(26, 58, 31, 0.3) 0%, transparent 60%),
-      /* Assombrissement central */
-      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(19, 15, 30, 0.8) 0%, transparent 100%);
+      radial-gradient(ellipse 70% 50% at 15% 0%,   rgba(4,101,110,0.25)   0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 100%,  rgba(235,235,165,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 50% 50%,   rgba(10,10,30,0.7)     0%, transparent 100%);
     min-height: 100vh;
     font-family: 'Geist Variable', sans-serif;
+    color: var(--cream);
   }
 
-  /* Scrollbar — barre de défilement discrète */
+  /* Scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  /* Scrollbar thumb — couleur dorée */
-  ::-webkit-scrollbar-thumb { background: rgba(201, 168, 76, 0.2); border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(201, 168, 76, 0.4); }
+  ::-webkit-scrollbar-thumb { background: rgba(4,101,110,0.3); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(4,101,110,0.55); }
 
-  /* Icône du sélecteur de date — teinte dorée */
+  /* Icône date picker */
   input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.6) sepia(1) saturate(0.5) hue-rotate(5deg);
-    opacity: 0.6;
+    filter: invert(0.85) sepia(0.3) saturate(0.4) hue-rotate(30deg);
+    opacity: 0.5;
     cursor: pointer;
   }
-  input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 0.9; }
+
+  /* Correction : sélecteurs natifs (select) */
+  select {
+    background-color: rgba(235,235,165,0.05);
+    color: var(--cream);
+  }
+
+  /* Correction : textarea, input héritent bien la couleur crème */
+  textarea, input {
+    color: var(--cream);
+  }
 }
 
 @layer utilities {
 
-  /* Verre léger — cartes fermées, boutons secondaires */
   .glass {
-    background: rgba(255, 255, 255, 0.04); /* transparence du fond */
-    backdrop-filter: blur(12px);           /* intensité du flou */
+    background: rgba(235,235,165,0.03);
+    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08); /* bordure blanche discrète */
+    border: 1px solid rgba(235,235,165,0.08);
   }
 
-  /* Verre fort — formulaires, header, sélecteurs */
   .glass-strong {
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(235,235,165,0.05);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(235,235,165,0.1);
   }
 
-  /* Verre bordeaux — icône logo, badge année, cartes travaux ouvertes */
+  /* Verre teal — icône logo, accent principal */
   .glass-wine {
-    background: rgba(107, 31, 58, 0.15);       /* teinte bordeaux */
+    background: rgba(4,101,110,0.18);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(201, 168, 76, 0.15); /* bordure dorée */
+    border: 1px solid rgba(4,101,110,0.35);
   }
 
-  /* Verre vert — cartes traitements ouvertes */
+  /* Verre teal léger — traitements */
   .glass-vine {
-    background: rgba(26, 58, 31, 0.15);        /* teinte verte */
+    background: rgba(4,101,110,0.12);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(45, 92, 53, 0.3);   /* bordure verte */
+    border: 1px solid rgba(4,101,110,0.25);
   }
 
-  /* Lueur dorée — appliquée sur certains éléments */
   .glow-gold {
-    box-shadow: 0 0 20px rgba(201, 168, 76, 0.15), 0 0 60px rgba(201, 168, 76, 0.05);
+    box-shadow: 0 0 20px rgba(4,101,110,0.2), 0 0 60px rgba(4,101,110,0.06);
   }
 
-  /* Lueur bordeaux — appliquée sur l'icône logo */
   .glow-wine {
-    box-shadow: 0 0 20px rgba(107, 31, 58, 0.3), 0 0 60px rgba(107, 31, 58, 0.1);
+    box-shadow: 0 0 20px rgba(4,101,110,0.35), 0 0 60px rgba(4,101,110,0.12);
   }
 
-  .text-gold { color: var(--gold); }
-  .text-gold-light { color: var(--gold-light); }
+  .text-gold       { color: var(--teal-light); }
+  .text-gold-light { color: var(--cream); }
 
-  /* Séparateur doré — ligne décorative horizontale */
   .divider-gold {
     height: 1px;
-    /* Change rgba pour modifier la couleur du trait */
-    background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(235,235,165,0.2), transparent);
   }
 
   @keyframes fadeInUp {
@@ -162,7 +148,7 @@
   }
 
   .animate-fade-in-up { animation: fadeInUp 0.4s ease forwards; }
-  .animate-fade-in    { animation: fadeIn 0.3s ease forwards; }
+  .animate-fade-in    { animation: fadeIn   0.3s ease forwards; }
   .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
 
   .delay-1 { animation-delay: 0.05s; }
@@ -171,64 +157,61 @@
   .delay-4 { animation-delay: 0.20s; }
   .delay-5 { animation-delay: 0.25s; }
 
-  /* Bouton principal — Sauvegarder, Ajouter */
+  /* Bouton principal teal */
   .btn-gold {
-    background: linear-gradient(135deg, rgba(201, 168, 76, 0.2), rgba(201, 168, 76, 0.1)); /* fond doré */
-    border: 1px solid rgba(201, 168, 76, 0.3); /* bordure dorée */
-    color: var(--gold-light);                   /* texte doré clair */
+    background: rgba(4,101,110,0.25);
+    border: 1px solid rgba(4,101,110,0.45);
+    color: var(--cream);
     transition: all 0.2s ease;
   }
   .btn-gold:hover {
-    background: linear-gradient(135deg, rgba(201, 168, 76, 0.3), rgba(201, 168, 76, 0.15));
-    border-color: rgba(201, 168, 76, 0.5);
-    box-shadow: 0 0 16px rgba(201, 168, 76, 0.2); /* lueur au survol */
+    background: rgba(4,101,110,0.4);
+    border-color: rgba(4,101,110,0.7);
+    box-shadow: 0 0 16px rgba(4,101,110,0.25);
   }
 
-  /* Effet lévitation au survol des cartes années */
   .card-hover { transition: all 0.25s ease; }
   .card-hover:hover {
     transform: translateY(-2px);
-    border-color: rgba(201, 168, 76, 0.2) !important; /* bordure dorée au survol */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(201, 168, 76, 0.08);
+    border-color: rgba(4,101,110,0.35) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 20px rgba(4,101,110,0.1);
   }
   .card-hover:active { transform: translateY(0px); }
 
-  /* Champs de saisie sombres */
   .input-dark {
-    background: rgba(255, 255, 255, 0.05); /* fond sombre */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* bordure discrète */
-    color: white;
+    background: rgba(235,235,165,0.04);
+    border: 1px solid rgba(235,235,165,0.1);
+    color: var(--cream);
     transition: all 0.2s ease;
   }
   .input-dark:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(201, 168, 76, 0.4);      /* bordure active dorée */
-    box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.08); /* halo de focus */
+    background: rgba(235,235,165,0.07);
+    border-color: rgba(4,101,110,0.55);
+    box-shadow: 0 0 0 3px rgba(4,101,110,0.1);
   }
-  .input-dark::placeholder { color: rgba(255, 255, 255, 0.2); }
+  .input-dark::placeholder { color: rgba(235,235,165,0.2); }
 
-  /* Badge bordeaux — nombre de travaux sur les cartes années */
+  /* Badge teal — travaux */
   .badge-wine {
-    background: rgba(107, 31, 58, 0.3);      /* fond bordeaux */
-    border: 1px solid rgba(107, 31, 58, 0.5);
-    color: rgba(232, 180, 180, 0.9);          /* texte rose clair */
+    background: rgba(4,101,110,0.2);
+    border: 1px solid rgba(4,101,110,0.4);
+    color: rgba(235,235,165,0.85);
     font-size: 0.65rem;
     padding: 2px 8px;
     border-radius: 999px;
   }
 
-  /* Badge vert — nombre de traitements sur les cartes années */
+  /* Badge crème — traitements */
   .badge-vine {
-    background: rgba(26, 58, 31, 0.3);       /* fond vert */
-    border: 1px solid rgba(45, 92, 53, 0.5);
-    color: rgba(150, 220, 160, 0.9);          /* texte vert clair */
+    background: rgba(235,235,165,0.08);
+    border: 1px solid rgba(235,235,165,0.18);
+    color: rgba(235,235,165,0.7);
     font-size: 0.65rem;
     padding: 2px 8px;
     border-radius: 999px;
   }
 
-  /* Titre de section avec trait décoratif de chaque côté */
   .ornament-line {
     display: flex;
     align-items: center;
@@ -239,7 +222,6 @@
     content: '';
     flex: 1;
     height: 1px;
-    /* Change rgba pour modifier la couleur des traits */
-    background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(235,235,165,0.15), transparent);
   }
 }
