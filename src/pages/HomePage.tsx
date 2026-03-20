@@ -1,17 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Grape, Trash2, ChevronRight, Loader2 } from "lucide-react";
+import { Plus, Grape, Trash2, Loader2, LogOut } from "lucide-react";
 import { useYears } from "../hooks/useYears";
-
-// Formate une date ISO (YYYY-MM-DD) en JJ/MM/AAAA
-function formatDate(iso: string): string {
-  if (!iso) return "";
-  const [y, m, d] = iso.split("-");
-  return `${d}/${m}/${y}`;
-}
+import { useAuth } from "../hooks/useAuth";
 
 export default function HomePage() {
   const { years, loading, addYear, deleteYear } = useYears();
+  const { user, logout } = useAuth();
   const [showInput, setShowInput] = useState(false);
   const [newYear, setNewYear] = useState("");
   const [error, setError] = useState("");
@@ -45,35 +40,57 @@ export default function HomePage() {
   return (
     <div className="min-h-screen p-4 pb-10 max-w-md mx-auto">
       {/* ── Header ── */}
-      <div className="animate-fade-in-up pt-8 pb-6">
-        <div className="flex flex-col items-center gap-3 mb-1">
-          <div className="relative w-14 h-14 rounded-2xl glass-wine glow-wine flex items-center justify-center">
-            <Grape className="w-7 h-7" style={{ color: "var(--gold)" }} />
-            <div
-              className="absolute inset-0 rounded-2xl"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%)",
-              }}
-            />
+      <div className="animate-fade-in-up pt-5 pb-4">
+        {/* Logo + titre + bouton déco sur une ligne */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 rounded-xl glass-wine glow-wine flex items-center justify-center shrink-0">
+              <Grape className="w-5 h-5" style={{ color: "var(--gold)" }} />
+              <div
+                className="absolute inset-0 rounded-xl"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%)",
+                }}
+              />
+            </div>
+            <div>
+              <h1
+                className="text-lg font-bold leading-none"
+                style={{ color: "var(--gold-light)", letterSpacing: "-0.02em" }}
+              >
+                WorksVine
+              </h1>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: "rgba(201,168,76,0.4)" }}
+              >
+                {user?.displayName ?? user?.email ?? "Mon vignoble"}
+              </p>
+            </div>
           </div>
-          <div className="text-center">
-            <h1
-              className="text-2xl font-bold tracking-tight"
-              style={{ color: "var(--gold-light)", letterSpacing: "-0.02em" }}
-            >
-              WorksVine
-            </h1>
-            <p className="text-xs" style={{ color: "rgba(201,168,76,0.45)" }}>
-              Carnet de vignoble
-            </p>
-          </div>
+
+          {/* Bouton déconnexion — juste l'icône */}
+          <button
+            onClick={logout}
+            className="w-7 h-7 flex items-center justify-center rounded-lg transition-all duration-200"
+            style={{ color: "rgba(255,255,255,0.18)" }}
+            title="Déconnexion"
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = "rgba(220,80,80,0.7)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = "rgba(255,255,255,0.18)")
+            }
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
         </div>
-        <div className="divider-gold mt-5" />
+        <div className="divider-gold" />
       </div>
 
       {/* ── Titre section + bouton ── */}
-      <div className="flex items-center justify-between mb-4 animate-fade-in-up delay-1">
+      <div className="flex items-center justify-between mb-3 animate-fade-in-up delay-1">
         <div
           className="ornament-line text-xs font-medium tracking-widest uppercase"
           style={{ color: "rgba(201,168,76,0.5)" }}
@@ -99,7 +116,7 @@ export default function HomePage() {
       {/* ── Formulaire ajout ── */}
       {showInput && (
         <div
-          className="glass-strong rounded-2xl p-4 mb-5 animate-fade-in"
+          className="glass-strong rounded-2xl p-4 mb-3 animate-fade-in"
           style={{ border: "1px solid rgba(201,168,76,0.15)" }}
         >
           <p
@@ -177,49 +194,49 @@ export default function HomePage() {
             <div
               key={y.id}
               onClick={() => navigate(`/year/${y.id}`)}
-              className={`glass-strong rounded-2xl p-4 flex items-center justify-between
-                          cursor-pointer card-hover animate-fade-in-up
+              className={`card-hover animate-fade-in-up cursor-pointer
                           ${i === 0 ? "" : i === 1 ? "delay-1" : i === 2 ? "delay-2" : "delay-3"}`}
               style={{ opacity: 0 }}
             >
-              <div className="flex items-center gap-3">
-                <div className="relative w-14 h-14 rounded-xl glass-wine flex items-center justify-center shrink-0 overflow-hidden">
-                  <div
-                    className="absolute inset-0"
+              {/* Carte minimaliste */}
+              <div
+                className="rounded-2xl px-5 py-4 flex items-center justify-between"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(16px)",
+                }}
+              >
+                {/* Année en grand + stats en petit */}
+                <div>
+                  <p
+                    className="text-3xl font-bold leading-none mb-1.5"
                     style={{
-                      background:
-                        "linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 70%)",
+                      color: "var(--gold-light)",
+                      letterSpacing: "-0.03em",
                     }}
-                  />
-                  <span
-                    className="text-base font-bold relative z-10"
-                    style={{ color: "var(--gold-light)" }}
                   >
                     {y.year}
-                  </span>
+                  </p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  >
+                    {y.works?.length ?? 0} travaux · {y.treatments?.length ?? 0}{" "}
+                    traitements
+                  </p>
                 </div>
-                <div>
-                  {/* <p className="text-base font-semibold text-white mb-0.5">{y.year}</p> */}
-                  <div className="flex items-center gap-2">
-                    <span className="badge-wine">
-                      {y.works?.length ?? 0} travaux
-                    </span>
-                    <span className="badge-vine">
-                      {y.treatments?.length ?? 0} traitements
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
+
+                {/* Bouton supprimer */}
                 <button
                   onClick={(e) => handleDelete(y.id, e)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200"
-                  style={{ color: "rgba(255,255,255,0.15)" }}
+                  className="w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200"
+                  style={{ color: "rgba(255,255,255,0.12)" }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "rgba(220,80,80,0.8)")
+                    (e.currentTarget.style.color = "rgba(220,80,80,0.7)")
                   }
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "rgba(255,255,255,0.15)")
+                    (e.currentTarget.style.color = "rgba(255,255,255,0.12)")
                   }
                 >
                   {deleting === y.id ? (
@@ -228,24 +245,17 @@ export default function HomePage() {
                     <Trash2 className="w-4 h-4" />
                   )}
                 </button>
-                <ChevronRight
-                  className="w-4 h-4"
-                  style={{ color: "rgba(201,168,76,0.3)" }}
-                />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      <div className="mt-10 text-center">
-        <p className="text-xs" style={{ color: "rgba(201,168,76,0.2)" }}>
+      <div className="mt-6 text-center">
+        <p className="text-xs" style={{ color: "rgba(201,168,76,0.15)" }}>
           ✦ WorksVine ✦
         </p>
       </div>
     </div>
   );
 }
-
-// Export de la fonction pour réutilisation dans les autres composants
-export { formatDate };

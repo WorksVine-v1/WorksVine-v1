@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-  collection,
-  onSnapshot,
-  addDoc,
-  deleteDoc,
-  doc,
-  orderBy,
-  query,
+  collection, onSnapshot, addDoc,
+  deleteDoc, doc, orderBy, query, where,
 } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { db, auth } from "../lib/firebase";
 import type { Year } from "../types";
 
 export function useYears() {
@@ -16,7 +11,15 @@ export function useYears() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, "years"), orderBy("year", "desc"));
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    const q = query(
+      collection(db, "years"),
+      where("userId", "==", uid),
+      orderBy("year", "desc")
+    );
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((d) => ({
         id: d.id,
@@ -29,12 +32,15 @@ export function useYears() {
   }, []);
 
   const addYear = async (year: number) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return { error: "Non connecté" };
     const exists = years.find((y: Year) => y.year === year);
     if (exists) return { error: "Cette année existe déjà !" };
     await addDoc(collection(db, "years"), {
       year,
       works: [],
       treatments: [],
+      userId: uid,
     });
     return { error: null };
   };
