@@ -28,6 +28,7 @@ const TREATMENT_TYPES: TreatmentType[] = [
   "Engrais",
   "Chélate de fer",
   "Désherbage",
+  "Phytosanitaire",
 ];
 
 // Couleurs pour chaque type de travail
@@ -45,6 +46,7 @@ const TREATMENT_COLORS: Record<string, string> = {
   Engrais: "#05848f",
   "Chélate de fer": "#EBEBA5",
   Désherbage: "#7ab8bc",
+  Phytosanitaire: "#8189EE",
 };
 
 // Composant barre de progression

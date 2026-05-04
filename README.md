@@ -32,7 +32,7 @@ Application mobile de gestion de vignoble — carnet numérique pour suivre les 
 - Pièces jointes (photos JPG/PNG, PDF)
 
 ### Traitements
-3 types disponibles : Engrais, Chélate de fer, Désherbage
+3 types disponibles : Engrais, Chélate de fer, Désherbage, phytosanitaire
 
 - Date du traitement
 - Notes libres
